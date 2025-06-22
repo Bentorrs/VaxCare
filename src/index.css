@@ -48,3 +48,9 @@ button.btn-primary:hover {
   font-style: italic;
   color: #6c757d !important;
 }
+
+img {
+  max-height: 500px;
+  height: 500x;
+  width: 500px;
+}
