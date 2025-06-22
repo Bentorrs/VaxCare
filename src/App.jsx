@@ -42,8 +42,10 @@ function App() {
 
   return (
     <div className="container mt-5">
-      <h1 className="text-center mb-4">VaxCare</h1>
-      <h4 className="text-center mb-5 text-muted">Tus chequeos, controles y vacunas</h4>
+      <div className="text-center mb-4">
+        <img src="public/VaxCare2_sin_fondo2.png" alt="VaxCare Logo" width="120" />
+      </div>
+      <h4 className="text-center mb-5 text-muted">Tus chequeos, controles y vacunas en un solo lugar</h4>
 
       <form onSubmit={handleSubmit} className="mb-4">
         <div className="row g-3">
