@@ -24,14 +24,38 @@ function App() {
 
   const [coberturaOMS, setCoberturaOMS] = useState([]);
 
+  // useEffect de info de API
   useEffect(() => {
-    fetch('https://ghoapi.azureedge.net/api/Immunization_cov_DTP3')
-      .then((response) => response.json())
-      .then((data) => {
-        const resultados = data.value.slice(0, 10);
+    const indicadores = [
+      { codigo: 'WHOSIS_000015', nombre: 'Expectancia de vida a los 60 años en Chile (%)' },
+      { codigo: 'WHS8_110', nombre: 'Dosis de la vacunas (sarampión) entre niños de 1 año en Chile (%)' },
+    ];
+  
+    const fetchIndicadores = async () => {
+      try {
+        const resultados = {};
+  
+        for (const indicador of indicadores) {
+          const url = `/api/oms/api/${indicador.codigo}?$filter=SpatialDim eq 'CHL'`;
+          const res = await fetch(url);
+          const data = await res.json();
+  
+          const valores = data.value
+            .filter(d => d.SpatialDim === 'CHL')
+            .sort((a, b) => b.TimeDim - a.TimeDim); // ordenar por año descendente
+  
+          if (valores.length > 0) {
+            resultados[indicador.nombre] = valores;
+          }
+        }
+  
         setCoberturaOMS(resultados);
-      })
-      .catch((error) => console.error('Error al obtener datos OMS:', error));
+      } catch (error) {
+        console.error("Error al obtener datos de la OMS:", error);
+      }
+    };
+  
+    fetchIndicadores();
   }, []);
 
   // VACUNAS
@@ -201,17 +225,23 @@ function App() {
       )}
 
       {/* API OMS */}
-      <h3 className="mb-3">Cobertura DTP3 según OMS</h3>
-      {coberturaOMS.length === 0 ? (
+      <h3 className="mb-3">Informacion de la OMS disponible (API)</h3>
+      <h4 className="mb-3">Indicadores OMS (Chile)</h4>
+      {Object.keys(coberturaOMS).length === 0 ? (
         <p className="text-muted">Cargando datos de la OMS...</p>
       ) : (
-        <ul className="list-group mb-5">
-          {coberturaOMS.map((item, index) => (
-            <li key={index} className="list-group-item">
-              {item.SpatialDim} - {item.Value}% en {item.TimeDim}
-            </li>
-          ))}
-        </ul>
+        Object.entries(coberturaOMS).map(([nombre, datos], idx) => (
+          <div key={idx} className="mb-4">
+            <h5>{nombre}</h5>
+            <ul className="list-group">
+              {datos.map((dato, i) => (
+                <li key={i} className="list-group-item">
+                  <strong>Año:</strong> {dato.TimeDim} — <strong>Valor:</strong> {dato.Value} {dato.Unit || ''} {dato.ValueType ? `(${dato.ValueType})` : '%'}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
       )}
     </div>
   );
