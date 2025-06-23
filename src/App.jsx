@@ -10,6 +10,7 @@ function App() {
     medico: '',
     observaciones: '',
   });
+  const [editandoVacunaIndex, setEditandoVacunaIndex] = useState(null);
 
   const [chequeos, setChequeos] = useState([]);
   const [nuevoChequeo, setNuevoChequeo] = useState({
@@ -19,6 +20,7 @@ function App() {
     observaciones: '',
     proxima: ''
   });
+  const [editandoChequeoIndex, setEditandoChequeoIndex] = useState(null);
 
   const [coberturaOMS, setCoberturaOMS] = useState([]);
 
@@ -26,7 +28,7 @@ function App() {
     fetch('https://ghoapi.azureedge.net/api/Immunization_cov_DTP3')
       .then((response) => response.json())
       .then((data) => {
-        const resultados = data.value.slice(0, 10); // primeros 10 registros
+        const resultados = data.value.slice(0, 10);
         setCoberturaOMS(resultados);
       })
       .catch((error) => console.error('Error al obtener datos OMS:', error));
@@ -40,7 +42,14 @@ function App() {
 
   const handleSubmitVacuna = (e) => {
     e.preventDefault();
-    setVacunas([...vacunas, nuevaVacuna]);
+    if (editandoVacunaIndex !== null) {
+      const actualizadas = [...vacunas];
+      actualizadas[editandoVacunaIndex] = nuevaVacuna;
+      setVacunas(actualizadas);
+      setEditandoVacunaIndex(null);
+    } else {
+      setVacunas([...vacunas, nuevaVacuna]);
+    }
     setNuevaVacuna({
       nombre: '',
       fecha: '',
@@ -50,6 +59,16 @@ function App() {
     });
   };
 
+  const handleEditarVacuna = (index) => {
+    setNuevaVacuna(vacunas[index]);
+    setEditandoVacunaIndex(index);
+  };
+
+  const handleEliminarVacuna = (index) => {
+    const actualizadas = vacunas.filter((_, i) => i !== index);
+    setVacunas(actualizadas);
+  };
+
   // CHEQUEOS
   const handleChangeChequeo = (e) => {
     setNuevoChequeo({ ...nuevoChequeo, [e.target.name]: e.target.value });
@@ -57,7 +76,14 @@ function App() {
 
   const handleSubmitChequeo = (e) => {
     e.preventDefault();
-    setChequeos([...chequeos, nuevoChequeo]);
+    if (editandoChequeoIndex !== null) {
+      const actualizados = [...chequeos];
+      actualizados[editandoChequeoIndex] = nuevoChequeo;
+      setChequeos(actualizados);
+      setEditandoChequeoIndex(null);
+    } else {
+      setChequeos([...chequeos, nuevoChequeo]);
+    }
     setNuevoChequeo({
       tipo: '',
       fecha: '',
@@ -65,6 +91,16 @@ function App() {
       observaciones: '',
       proxima: ''
     });
+  };
+
+  const handleEditarChequeo = (index) => {
+    setNuevoChequeo(chequeos[index]);
+    setEditandoChequeoIndex(index);
+  };
+
+  const handleEliminarChequeo = (index) => {
+    const actualizados = chequeos.filter((_, i) => i !== index);
+    setChequeos(actualizados);
   };
 
   return (
@@ -75,7 +111,7 @@ function App() {
       </div>
 
       {/* FORM VACUNAS */}
-      <h3 className="mb-3">Registrar Vacuna</h3>
+      <h3 className="mb-3">{editandoVacunaIndex !== null ? 'Editar Vacuna' : 'Registrar Vacuna'}</h3>
       <form onSubmit={handleSubmitVacuna} className="mb-5">
         <div className="row g-3">
           <div className="col-md-4">
@@ -95,7 +131,7 @@ function App() {
           </div>
         </div>
         <div className="text-end mt-3">
-          <button type="submit" className="btn btn-primary">Agregar Vacuna</button>
+          <button type="submit" className="btn btn-primary">{editandoVacunaIndex !== null ? 'Actualizar' : 'Agregar'} Vacuna</button>
         </div>
       </form>
 
@@ -106,18 +142,24 @@ function App() {
       ) : (
         <ul className="list-group mb-5">
           {vacunas.map((v, index) => (
-            <li key={index} className="list-group-item">
-              <strong>{v.nombre}</strong> - Aplicada: {v.fecha}, Próxima: {v.proximaDosis || 'N/A'}, Médico: {v.medico}, Obs: {v.observaciones}
+            <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <strong>{v.nombre}</strong> - Aplicada: {v.fecha}, Próxima: {v.proximaDosis || 'N/A'}, Médico: {v.medico}, Obs: {v.observaciones}
+              </div>
+              <div>
+                <button className="btn btn-sm btn-warning me-2" onClick={() => handleEditarVacuna(index)}>Editar</button>
+                <button className="btn btn-sm btn-danger" onClick={() => handleEliminarVacuna(index)}>Eliminar</button>
+              </div>
             </li>
           ))}
         </ul>
       )}
 
       {/* FORM CHEQUEOS */}
-      <h3 className="mb-3">Registrar Chequeo Médico</h3>
+      <h3 className="mb-3">{editandoChequeoIndex !== null ? 'Editar Chequeo Médico' : 'Registrar Chequeo Médico'}</h3>
       <form onSubmit={handleSubmitChequeo} className="mb-4">
         <div className="mb-2">
-          <input type="text" name="tipo" className="form-control" placeholder="Tipo de chequeo (Ej: Control general)" value={nuevoChequeo.tipo} onChange={handleChangeChequeo} required />
+          <input type="text" name="tipo" className="form-control" placeholder="Tipo de chequeo" value={nuevoChequeo.tipo} onChange={handleChangeChequeo} required />
         </div>
         <div className="mb-2">
           <input type="date" name="fecha" className="form-control" value={nuevoChequeo.fecha} onChange={handleChangeChequeo} required />
@@ -132,7 +174,7 @@ function App() {
           <label className="form-label">Próxima fecha (opcional)</label>
           <input type="date" name="proxima" className="form-control" value={nuevoChequeo.proxima} onChange={handleChangeChequeo} />
         </div>
-        <button type="submit" className="btn btn-success">Agregar Chequeo</button>
+        <button type="submit" className="btn btn-success">{editandoChequeoIndex !== null ? 'Actualizar' : 'Agregar'} Chequeo</button>
       </form>
 
       {/* LISTADO CHEQUEOS */}
@@ -142,11 +184,17 @@ function App() {
       ) : (
         <ul className="list-group mb-5">
           {chequeos.map((c, i) => (
-            <li key={i} className="list-group-item">
-              <strong>{c.tipo}</strong> — {c.fecha}<br />
-              <span className="text-muted">{c.profesional}</span><br />
-              {c.observaciones && <div>{c.observaciones}</div>}
-              {c.proxima && <div>🗓 Próximo: {c.proxima}</div>}
+            <li key={i} className="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <strong>{c.tipo}</strong> — {c.fecha}<br />
+                <span className="text-muted">{c.profesional}</span><br />
+                {c.observaciones && <div>{c.observaciones}</div>}
+                {c.proxima && <div>🗓 Próximo: {c.proxima}</div>}
+              </div>
+              <div>
+                <button className="btn btn-sm btn-warning me-2" onClick={() => handleEditarChequeo(i)}>Editar</button>
+                <button className="btn btn-sm btn-danger" onClick={() => handleEliminarChequeo(i)}>Eliminar</button>
+              </div>
             </li>
           ))}
         </ul>
