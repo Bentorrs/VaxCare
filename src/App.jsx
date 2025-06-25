@@ -24,8 +24,10 @@ function App() {
 
   const [coberturaOMS, setCoberturaOMS] = useState([]);
 
-  const [paginas, setPaginas] = useState({});
+  const [colapsados, setColapsados] = useState({});
 
+  const [paginas, setPaginas] = useState({});
+  
   // useEffect de info de API
   useEffect(() => {
     const indicadores = [
@@ -237,47 +239,65 @@ function App() {
           const totalPaginas = Math.ceil(datos.length / itemsPorPagina);
           const inicio = paginaActual * itemsPorPagina;
           const datosPaginados = datos.slice(inicio, inicio + itemsPorPagina);
+          const estaExpandido = colapsados[nombre] || false;
 
           return (
-            <div key={idx} className="mb-4">
-              <h5>{nombre}</h5>
-              <ul className="list-group mb-2">
-                {datosPaginados.map((dato, i) => (
-                  <li key={i} className="list-group-item">
-                    <strong>Año:</strong> {dato.TimeDim} — <strong>Valor:</strong> {dato.Value} {dato.Unit || ''} {dato.ValueType ? `(${dato.ValueType})` : ''}
-                  </li>
-                ))}
-              </ul>
+            <div key={idx} className="mb-4 border rounded p-3">
+              <div className="d-flex justify-content-between align-items-center">
+                <h5 className="mb-0">{nombre}</h5>
+                <button
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={() =>
+                    setColapsados(prev => ({
+                      ...prev,
+                      [nombre]: !prev[nombre],
+                    }))
+                  }
+                >
+                  {estaExpandido ? '−' : '+'}
+                </button>
+              </div>
 
-              {/* Controles de paginación */}
-              {totalPaginas > 1 && (
-                <div className="d-flex justify-content-between">
-                  <button
-                    className="btn btn-outline-primary btn-sm"
-                    disabled={paginaActual === 0}
-                    onClick={() =>
-                      setPaginas(prev => ({
-                        ...prev,
-                        [nombre]: paginaActual - 1,
-                      }))
-                    }
-                  >
-                    Anterior
-                  </button>
-                  <span>Página {paginaActual + 1} de {totalPaginas}</span>
-                  <button
-                    className="btn btn-outline-primary btn-sm"
-                    disabled={paginaActual >= totalPaginas - 1}
-                    onClick={() =>
-                      setPaginas(prev => ({
-                        ...prev,
-                        [nombre]: paginaActual + 1,
-                      }))
-                    }
-                  >
-                    Siguiente
-                  </button>
-                </div>
+              {estaExpandido && (
+                <>
+                  <ul className="list-group my-3">
+                    {datosPaginados.map((dato, i) => (
+                      <li key={i} className="list-group-item">
+                        <strong>Año:</strong> {dato.TimeDim} — <strong>Valor:</strong> {dato.Value} {dato.Unit || ''} {dato.ValueType ? `(${dato.ValueType})` : '%'}
+                      </li>
+                    ))}
+                  </ul>
+
+                  {totalPaginas > 1 && (
+                    <div className="d-flex justify-content-between align-items-center">
+                      <button
+                        className="btn btn-outline-primary btn-sm"
+                        disabled={paginaActual === 0}
+                        onClick={() =>
+                          setPaginas(prev => ({
+                            ...prev,
+                            [nombre]: paginaActual - 1,
+                          }))
+                        }
+                      >
+                        Anterior
+                      </button>
+                      <span>Página {paginaActual + 1} de {totalPaginas}</span>
+                      <button
+                        className="btn btn-outline-primary btn-sm"
+                        disabled={paginaActual >= totalPaginas - 1}
+                        onClick={() =>
+                          setPaginas(prev => ({
+                            ...prev,
+                            [nombre]: paginaActual + 1,
+                          }))
+                        }
+                      >
+                        Siguiente
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           );
