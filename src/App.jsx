@@ -24,6 +24,8 @@ function App() {
 
   const [coberturaOMS, setCoberturaOMS] = useState([]);
 
+  const [paginas, setPaginas] = useState({});
+
   // useEffect de info de API
   useEffect(() => {
     const indicadores = [
@@ -225,23 +227,61 @@ function App() {
       )}
 
       {/* API OMS */}
-      <h3 className="mb-3">Informacion de la OMS disponible (API)</h3>
-      <h4 className="mb-3">Indicadores OMS (Chile)</h4>
+      <h3 className="mb-3">Indicadores OMS (Chile)</h3>
       {Object.keys(coberturaOMS).length === 0 ? (
         <p className="text-muted">Cargando datos de la OMS...</p>
       ) : (
-        Object.entries(coberturaOMS).map(([nombre, datos], idx) => (
-          <div key={idx} className="mb-4">
-            <h5>{nombre}</h5>
-            <ul className="list-group">
-              {datos.map((dato, i) => (
-                <li key={i} className="list-group-item">
-                  <strong>Año:</strong> {dato.TimeDim} — <strong>Valor:</strong> {dato.Value} {dato.Unit || ''} {dato.ValueType ? `(${dato.ValueType})` : '%'}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))
+        Object.entries(coberturaOMS).map(([nombre, datos], idx) => {
+          const paginaActual = paginas[nombre] || 0;
+          const itemsPorPagina = 5;
+          const totalPaginas = Math.ceil(datos.length / itemsPorPagina);
+          const inicio = paginaActual * itemsPorPagina;
+          const datosPaginados = datos.slice(inicio, inicio + itemsPorPagina);
+
+          return (
+            <div key={idx} className="mb-4">
+              <h5>{nombre}</h5>
+              <ul className="list-group mb-2">
+                {datosPaginados.map((dato, i) => (
+                  <li key={i} className="list-group-item">
+                    <strong>Año:</strong> {dato.TimeDim} — <strong>Valor:</strong> {dato.Value} {dato.Unit || ''} {dato.ValueType ? `(${dato.ValueType})` : ''}
+                  </li>
+                ))}
+              </ul>
+
+              {/* Controles de paginación */}
+              {totalPaginas > 1 && (
+                <div className="d-flex justify-content-between">
+                  <button
+                    className="btn btn-outline-primary btn-sm"
+                    disabled={paginaActual === 0}
+                    onClick={() =>
+                      setPaginas(prev => ({
+                        ...prev,
+                        [nombre]: paginaActual - 1,
+                      }))
+                    }
+                  >
+                    Anterior
+                  </button>
+                  <span>Página {paginaActual + 1} de {totalPaginas}</span>
+                  <button
+                    className="btn btn-outline-primary btn-sm"
+                    disabled={paginaActual >= totalPaginas - 1}
+                    onClick={() =>
+                      setPaginas(prev => ({
+                        ...prev,
+                        [nombre]: paginaActual + 1,
+                      }))
+                    }
+                  >
+                    Siguiente
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        })
       )}
     </div>
   );
