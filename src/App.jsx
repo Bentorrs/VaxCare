@@ -24,6 +24,28 @@ function App() {
 
   const [coberturaOMS, setCoberturaOMS] = useState([]);
 
+
+  // CARGAR DATOS DESDE LOCAL STORAGE AL INICIO
+useEffect(() => {
+  const vacunasGuardadas = JSON.parse(localStorage.getItem('vacunas')) || [];
+  const chequeosGuardados = JSON.parse(localStorage.getItem('chequeos')) || [];
+
+  setVacunas(vacunasGuardadas);
+  setChequeos(chequeosGuardados);
+}, []);
+
+// GUARDAR VACUNAS EN LOCAL STORAGE CADA VEZ QUE CAMBIAN
+useEffect(() => {
+  localStorage.setItem('vacunas', JSON.stringify(vacunas));
+}, [vacunas]);
+
+// GUARDAR CHEQUEOS EN LOCAL STORAGE CADA VEZ QUE CAMBIAN
+useEffect(() => {
+  localStorage.setItem('chequeos', JSON.stringify(chequeos));
+}, [chequeos]);
+
+
+
   // useEffect de info de API
   useEffect(() => {
     const indicadores = [
