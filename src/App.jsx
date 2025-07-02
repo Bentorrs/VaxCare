@@ -31,6 +31,19 @@ function App() {
   const [filtroTipoChequeo, setFiltroTipoChequeo] = useState("");
   const [filtroFechaVacuna, setFiltroFechaVacuna] = useState("");
 
+ //CONSIGUE LA FECHA
+  function getEstadoFecha(fecha) {
+    if (!fecha) return null;
+    const hoy = new Date();
+    const fechaEvento = new Date(fecha);
+    const diferenciaDias = (fechaEvento - hoy) / (1000 * 60 * 60 * 24);
+  
+    if (diferenciaDias < 0) return 'vencido';       // Ya pasó
+    if (diferenciaDias <= 7) return 'proximo';      // Próxima en 7 días
+    return 'normal';                                // Todo bien
+  }
+  
+
 // CARGAR DATOS DESDE LOCAL STORAGE AL INICIO
   useEffect(() => {
     const vacunasGuardadas = JSON.parse(localStorage.getItem('vacunas')) || [];
@@ -203,17 +216,28 @@ function App() {
         <p className="text-muted">No hay vacunas registradas aún.</p>
       ) : (
         <ul className="list-group mb-5">
-          {vacunas.map((v, index) => (
-            <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
-              <div>
-                <strong>{v.nombre}</strong> - Aplicada: {v.fecha}, Próxima: {v.proximaDosis || 'N/A'}, Médico: {v.medico}, Obs: {v.observaciones}
-              </div>
-              <div>
-                <button className="btn btn-sm btn-warning me-2" onClick={() => handleEditarVacuna(index)}>Editar</button>
-                <button className="btn btn-sm btn-danger" onClick={() => handleEliminarVacuna(index)}>Eliminar</button>
-              </div>
-            </li>
-          ))}
+          {chequeos.map((c, i) => {
+            const estado = getEstadoFecha(c.proxima);
+            const bgClass =
+              estado === 'vencido' ? 'bg-danger-subtle' :
+              estado === 'proximo' ? 'bg-warning-subtle' :
+              '';
+
+            return (
+              <li key={i} className={`list-group-item d-flex justify-content-between align-items-center ${bgClass}`}>
+                <div>
+                  <strong>{c.tipo}</strong> — {c.fecha}<br />
+                  <span className="text-muted">{c.profesional}</span><br />
+                  {c.observaciones && <div>{c.observaciones}</div>}
+                  {c.proxima && <div>🗓 Próximo: {c.proxima}</div>}
+                </div>
+                <div>
+                  <button className="btn btn-sm btn-warning me-2" onClick={() => handleEditarChequeo(i)}>Editar</button>
+                  <button className="btn btn-sm btn-danger" onClick={() => handleEliminarChequeo(i)}>Eliminar</button>
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
 

@@ -110,3 +110,12 @@ img {
   border-color: #991b27 !important;
   box-shadow: none;
 }
+
+/*advertencias vacunas proximas*/
+.bg-warning-subtle {
+  background-color: #fbff11bd !important;
+}
+
+.bg-danger-subtle {
+  background-color: #f10c1fd3 !important;
+}
