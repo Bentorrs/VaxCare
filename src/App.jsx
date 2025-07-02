@@ -28,6 +28,9 @@ function App() {
 
   const [paginas, setPaginas] = useState({});
 
+  const [filtroTipoChequeo, setFiltroTipoChequeo] = useState("");
+  const [filtroFechaVacuna, setFiltroFechaVacuna] = useState("");
+
 // CARGAR DATOS DESDE LOCAL STORAGE AL INICIO
   useEffect(() => {
     const vacunasGuardadas = JSON.parse(localStorage.getItem('vacunas')) || [];
@@ -116,6 +119,10 @@ function App() {
     setVacunas(actualizadas);
   };
 
+  const vacunasFiltradas = vacunas.filter(v => 
+    filtroFechaVacuna === "" || v.fecha === filtroFechaVacuna
+  );
+
   // CHEQUEOS
   const handleChangeChequeo = (e) => {
     setNuevoChequeo({ ...nuevoChequeo, [e.target.name]: e.target.value });
@@ -150,6 +157,10 @@ function App() {
     setChequeos(actualizados);
   };
 
+  const chequeosFiltrados = chequeos.filter(c => 
+    filtroTipoChequeo === "" || c.tipo.toLowerCase().includes(filtroTipoChequeo.toLowerCase())
+  );
+
   return (
     <div className="container mt-5">
       <div className="text-center mb-4">
@@ -183,6 +194,10 @@ function App() {
       </form>
 
       {/* LISTADO VACUNAS */}
+      <div className="mb-3">
+        <label>Filtrar vacunas por fecha de aplicación:</label>
+        <input type="date" className="form-control" value={filtroFechaVacuna} onChange={(e) => setFiltroFechaVacuna(e.target.value)} />
+      </div>
       <h4 className="mb-3">Historial de Vacunas</h4>
       {vacunas.length === 0 ? (
         <p className="text-muted">No hay vacunas registradas aún.</p>
@@ -225,6 +240,11 @@ function App() {
       </form>
 
       {/* LISTADO CHEQUEOS */}
+      <div className="mb-3">
+        <label>Filtrar chequeos por tipo:</label>
+        <input type="text" className="form-control" placeholder="Ej: Dental, Oftalmológico..." value={filtroTipoChequeo} onChange={(e) => setFiltroTipoChequeo(e.target.value)} />
+      </div>
+
       <h4 className="mb-3">Historial de Chequeos</h4>
       {chequeos.length === 0 ? (
         <p className="text-muted">No hay chequeos registrados aún.</p>
