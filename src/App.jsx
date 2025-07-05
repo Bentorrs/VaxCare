@@ -184,21 +184,26 @@ function App() {
       {/* FORM VACUNAS */}
       <h3 className="mb-3">{editandoVacunaIndex !== null ? 'Editar Vacuna' : 'Registrar Vacuna'}</h3>
       <form onSubmit={handleSubmitVacuna} className="mb-5">
-        <div className="row g-3">
+        <div className="row g-3 align-items-end">
           <div className="col-md-4">
-            <input type="text" className="form-control" name="nombre" placeholder="Nombre de la vacuna" value={nuevaVacuna.nombre} onChange={handleChangeVacuna} required />
+            <label className="form-label small fw-semibold">Nombre de la vacuna</label>
+            <input type="text" className="form-control" name="nombre" placeholder="Ej. COVID-19" value={nuevaVacuna.nombre} onChange={handleChangeVacuna} required />
           </div>
-          <div className="col-md-2">
+          <div className="col-md-2 d-flex flex-column">
+            <label className="form-label small fw-semibold">Fecha de aplicación</label>
             <input type="date" className="form-control" name="fecha" value={nuevaVacuna.fecha} onChange={handleChangeVacuna} required />
           </div>
-          <div className="col-md-2">
+          <div className="col-md-2 d-flex flex-column">
+            <label className="form-label small fw-semibold">Próxima dosis</label>
             <input type="date" className="form-control" name="proximaDosis" value={nuevaVacuna.proximaDosis} onChange={handleChangeVacuna} />
           </div>
           <div className="col-md-2">
-            <input type="text" className="form-control" name="medico" placeholder="Médico tratante" value={nuevaVacuna.medico} onChange={handleChangeVacuna} />
+            <label className="form-label small fw-semibold">Médico tratante</label>
+            <input type="text" className="form-control" name="medico" placeholder="Ej. Dr Contreras" value={nuevaVacuna.medico} onChange={handleChangeVacuna} />
           </div>
           <div className="col-md-2">
-            <input type="text" className="form-control" name="observaciones" placeholder="Observaciones" value={nuevaVacuna.observaciones} onChange={handleChangeVacuna} />
+            <label className="form-label small fw-semibold">Observaciones</label>
+            <input type="text" className="form-control" name="observaciones" placeholder="Vacunación" value={nuevaVacuna.observaciones} onChange={handleChangeVacuna} />
           </div>
         </div>
         <div className="text-end mt-3">
