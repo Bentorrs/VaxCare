@@ -221,8 +221,8 @@ function App() {
         <p className="text-muted">No hay vacunas registradas aún.</p>
       ) : (
         <ul className="list-group mb-5">
-          {chequeos.map((c, i) => {
-            const estado = getEstadoFecha(c.proxima);
+          {vacunasFiltradas.map((v, i) => {
+            const estado = getEstadoFecha(v.proximaDosis);
             const bgClass =
               estado === 'vencido' ? 'bg-danger-subtle' :
               estado === 'proximo' ? 'bg-warning-subtle' :
@@ -231,14 +231,14 @@ function App() {
             return (
               <li key={i} className={`list-group-item d-flex justify-content-between align-items-center ${bgClass}`}>
                 <div>
-                  <strong>{c.tipo}</strong> — {c.fecha}<br />
-                  <span className="text-muted">{c.profesional}</span><br />
-                  {c.observaciones && <div>{c.observaciones}</div>}
-                  {c.proxima && <div>🗓 Próximo: {c.proxima}</div>}
+                  <strong>{v.nombre}</strong> — {v.fecha}<br />
+                  <span className="text-muted">{v.medico}</span><br />
+                  {v.observaciones && <div>{v.observaciones}</div>}
+                  {v.proximaDosis && <div>🗓 Próxima dosis: {v.proximaDosis}</div>}
                 </div>
                 <div>
-                  <button className="btn btn-sm btn-warning me-2" onClick={() => handleEditarChequeo(i)}>Editar</button>
-                  <button className="btn btn-sm btn-danger" onClick={() => handleEliminarChequeo(i)}>Eliminar</button>
+                  <button className="btn btn-sm btn-warning me-2" onClick={() => handleEditarVacuna(i)}>Editar</button>
+                  <button className="btn btn-sm btn-danger" onClick={() => handleEliminarVacuna(i)}>Eliminar</button>
                 </div>
               </li>
             );
